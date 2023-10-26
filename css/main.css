@@ -5,7 +5,7 @@
 #myBoard {
     max-width: 100%;
     height: auto;
-    overflow: scroll;
+    //overflow: scroll;
 }
 
 .highlight-white {
@@ -32,4 +32,14 @@
 .btn-header {
     font-size: 20px;
     font-weight: bold;
+}
+
+p,h1, h2 {
+    color: white;
+}
+
+body {
+    background-image: url('https://wallpapers.com/images/hd/chess-background-na0c3ufv4kcfdcmk.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
 }
