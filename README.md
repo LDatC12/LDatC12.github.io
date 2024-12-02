@@ -1,23 +1,28 @@
-# chess-ai
-A chess engine by someone who doesn't know how to play chess.
+# Online Chatbot System
+A website that integrates multiple free chatbots into the system, allowing users to interact with various AI-powered bots for different purposes.
 
 ## About
-chess-ai is a simple chess AI in JavaScript. 
+The Online Chatbot System is a web-based platform that integrates more than two free chatbots. Each chatbot offers a unique functionality, making it easy for users to choose the chatbot that best fits their needs. Whether it's customer support, casual conversation, or answering frequently asked questions, this system provides a wide range of chatbot options.
 
-The primary concern of chess-ai is the decision-making part of the application. All functionality outside the scope of the AI are implemented using external libraries:
-- Chessboard GUI: Using the chessboard.js API
-- Game Mechanics: Using the chess.js API
+The chatbots are powered by popular AI models, and users can interact with them directly on the website. The system allows seamless switching between different bots and provides a simple user interface to enhance the interaction experience.
+## Integrated Chatbots:
+Chatbot 1: Customer Support Bot (Handles customer inquiries, product information, etc.)
+Chatbot 2: Casual Conversation Bot (For casual conversations and fun interactions)
+Chatbot 3: FAQ Bot (Answers frequently asked questions about the website, products, or services)
+All chatbots in the system use the REST API to process requests and respond to user inputs, with each bot offering unique capabilities based on the specific use case.
 
-The AI uses the [minimax algorithm](https://en.wikipedia.org/wiki/Minimax), which is optimised by [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning). 
-
-The evaluation function uses [piece square tables](https://www.chessprogramming.org/Piece-Square_Tables) adapted from Sunfish.py, and eliminates the need for nested loops by updating the sum based on each move instead of re-computing the sum of individual pieces at each leaf node.
-
-A global sum is used to keep track of black's evaluation score after each move, which is used to display the 'advantage' bar. 
-
-## How to Play?
-1. Head over to https://ldatc12.github.io.
-
-2. Play as white by dragging a piece to your desired location. The AI plays as black. The AI's minimax search depth (which is directly related to how well it will play) can be customised using the 'Search Depth (Black)' dropdown. Using a higher value will improve the AI's accuracy, but it will take longer to decide on the next move.
-
-3. To pit the AI against itself, click the 'Start Game' button under Computer vs. Computer. You can stop the game at any time using the 'Stop and Reset' button.
-
+## Features
+Multiple Chatbots: Easily switch between multiple chatbots within the same interface.
+Customizable User Interface: Clean and simple design for easy interaction with any of the integrated chatbots.
+Real-Time Chat: Instant responses from the chatbots with real-time conversation updates.
+Easy-to-Use: No complex setup—just start chatting with the bots!
+Free API Integrations: The system integrates with free chatbot APIs, ensuring that the chatbots remain functional without any cost.
+##  How to Use:
+Head over to the website: [Your website URL.](https://ldatc12.github.io/)
+Choose one of the available chatbots from the dropdown list or by selecting the chatbot’s icon on the homepage.
+Start interacting with the chatbot by typing a message. Each bot has different responses based on its purpose:
+Customer Support Bot: Ask about products, services, or technical support.
+Casual Conversation Bot: Engage in casual conversations, ask for jokes, or just chat.
+FAQ Bot: Get answers to frequently asked questions.
+To switch between chatbots, simply click on the “Switch Bot” button or select the desired bot from the dropdown menu.
+You can also start a conversation with one chatbot and then switch to another without interrupting the chat history.
