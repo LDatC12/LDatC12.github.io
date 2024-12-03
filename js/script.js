@@ -66,7 +66,7 @@ function addMessage(sender, text) {
 async function getBotResponse(bot, input) {
     const endpoints = {
         gemini: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
-        textToImage: 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large'
+        textToImage: 'https://api-inference.huggingface.co/models/ZB-Tech/Text-to-Image'
     };
 
     try {
@@ -98,7 +98,7 @@ async function getBotResponse(bot, input) {
                     const response = await fetch(endpoints.textToImage, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer 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`,
+                            'Authorization': `Bearer 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`,
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({ inputs: input })
