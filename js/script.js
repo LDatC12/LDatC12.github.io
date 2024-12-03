@@ -1,98 +1,145 @@
-const openaiKey = "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";
-const huggingFaceKey = "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";
-const dallEKey = "YOUR_DALL_E_API_KEY";
+let currentBot = '';
+let darkMode = false;
 
-function sendMessage() {
-    const userInput = document.getElementById("userInput").value;
-    const messagesDiv = document.getElementById("messages");
-
-    // Display user's message
-    messagesDiv.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-
-    // Choose which chatbot to send the request to
-    if (userInput.startsWith("image:")) {
-        // Text-to-image functionality
-        const prompt = userInput.slice(6); // Remove "image:" prefix
-        generateImage(prompt);
-    } else {
-        // Send to LLM chatbots
-        //sendToOpenAI(userInput);
-        sendToHuggingFace(userInput);
-    }
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    document.body.style.background = darkMode ? '#1a1a1a' : '#ffffff';
+    document.body.style.color = darkMode ? '#ffffff' : '#000000';
+    document.querySelector('#sidebar').style.background = darkMode ? '#2d2d2d' : '#f5f5f5';
+    document.querySelector('#sidebar').style.borderColor = darkMode ? '#3d3d3d' : '#eaeaea';
+    
+    document.querySelectorAll('.message').forEach(msg => {
+        msg.style.background = darkMode ? '#2d2d2d' : '#f5f5f5';
+    });
 }
 
-function sendToOpenAI(userInput) {
-    fetch("https://api.openai.com/v1/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${openaiKey}`
-        },
-        body: JSON.stringify({
-            model: "text-davinci-003",
-            prompt: userInput,
-            max_tokens: 150
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        const messagesDiv = document.getElementById("messages");
-        messagesDiv.innerHTML += `<p><strong>OpenAI:</strong> ${data.choices[0].text}</p>`;
-    })
-    .catch(error => console.error("Error:", error));
+function switchBot(bot) {
+    currentBot = bot;
+    document.querySelectorAll('.bot-btn').forEach(btn => {
+        btn.style.opacity = '0.7';
+    });
+    event.target.style.opacity = '1';
+    
+    document.getElementById('messages').innerHTML = `
+        <div style="text-align: center; margin: 20px;">
+            <h3>Now chatting with ${bot.toUpperCase()}</h3>
+        </div>
+    `;
 }
-async function sendToHuggingFace(userInput) {
-    const data = { inputs: userInput };
-	const response = await fetch(
-		"https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
-		{
-			headers: {
-				Authorization: "Bearer hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-			body: JSON.stringify(data),
-		}
-	);
-	if (!response.ok) {
-        // If response is not successful, handle the error.
-        console.error('Error:', response.status, response.statusText);
+
+async function sendMessage() {
+    if (!currentBot) {
+        alert('Please select a chatbot first!');
         return;
     }
 
-    // Parse the response as JSON.
-    const result = await response.json();
+    const userInput = document.getElementById('userInput').value;
+    if (!userInput.trim()) return;
 
-    // Assuming the API returns text in 'generated_text' field.
-    const generatedText = result.generated_text;
+    addMessage('user', userInput);
+    document.getElementById('userInput').value = '';
 
-    // Display the result in the messagesDiv.
-    const messagesDiv = document.getElementById("messages");
-    if (generatedText) {
-        messagesDiv.innerHTML += `<p><strong>Hugging Face:</strong> ${generatedText}</p>`;
-    } else {
-        messagesDiv.innerHTML += `<p><strong>Hugging Face:</strong> No response available.</p>`;
+    const response = await getBotResponse(currentBot, userInput);
+    addMessage('bot', response);
+}
+
+function addMessage(sender, text) {
+    const messagesDiv = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    messageDiv.style.background = darkMode ? '#2d2d2d' : '#f5f5f5';
+    
+    messageDiv.innerHTML = sender === 'bot' ? marked.parse(text) : text;
+    
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    anime({
+        targets: messageDiv,
+        translateY: [20, 0],
+        opacity: [0, 1],
+        duration: 500,
+        easing: 'easeOutCubic'
+    });
+}
+
+async function getBotResponse(bot, input) {
+    const endpoints = {
+        gemini: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+        textToImage: 'https://api-inference.huggingface.co/models/ZB-Tech/Text-to-Image'
+    };
+
+    try {
+        switch (bot) {
+            case 'gemini':
+                try {
+                    const geminiResponse = await fetch(`${endpoints.gemini}?key=AIzaSyAy9Yukv_M3k4r6_ciiasq7jdLKdRfTvdg`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: input }] }]
+                        })
+                    });
+
+                    const geminiData = await geminiResponse.json();
+                    if (geminiData.candidates && geminiData.candidates[0].content && geminiData.candidates[0].content.parts[0].text) {
+                        return geminiData.candidates[0].content.parts[0].text;
+                    } else {
+                        return "Sorry, there was an issue with Gemini's response.";
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    return "Sorry, there was an error processing your request.";
+                }
+
+            case 'stable_diffusion':
+                try {
+                    const response = await fetch(endpoints.textToImage, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer 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`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ inputs: input })
+                    });
+            
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Hugging Face API Error:', errorData);
+                        return "Sorry, there was an error generating the image.";
+                    }
+            
+                    const result = await response.blob();
+                    const imageUrl = URL.createObjectURL(result);
+                    
+                    console.log('Generated Image URL:', imageUrl);
+            
+                    return `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; height: auto;" />`;
+            
+                } catch (error) {
+                    console.error('Error:', error);
+                    return "Sorry, there was an error generating the image.";
+                }
+
+            default:
+                return "Sorry, the bot you selected is not available.";
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return "Sorry, there was an error processing your request.";
     }
 }
 
-function generateImage(prompt) {
-    fetch("https://api.openai.com/v1/images/generations", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${dallEKey}`
-        },
-        body: JSON.stringify({
-            prompt: prompt,
-            n: 1,
-            size: "1024x1024"
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        const messagesDiv = document.getElementById("messages");
-        const imageUrl = data.data[0].url;
-        messagesDiv.innerHTML += `<p><strong>DALL-E Image:</strong></p><img src="${imageUrl}" alt="Generated Image">`;
-    })
-    .catch(error => console.error("Error:", error));
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+});
+
